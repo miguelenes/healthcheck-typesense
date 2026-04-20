@@ -103,7 +103,7 @@ it('can be configured with fluent methods', function () {
     ]);
 
     $check = TypesenseCheck::new()
-        ->clientSettings(['nodes' => [['host' => 'localhost', 'port' => '8108', 'protocol' => 'http']], 'api_key' => 'xyz'])
+        ->clientSettings(['nodes' => [['host' => 'localhost', 'port' => '8109', 'protocol' => 'http']], 'api_key' => 'xyz'])
         ->expectNodes(3)
         ->timeout(10);
 
