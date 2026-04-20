@@ -7,7 +7,7 @@ namespace IllumaLaw\HealthCheckTypesense;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
-final class TypesensePulseServiceProvider extends PackageServiceProvider
+final class HealthCheckTypesenseServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {

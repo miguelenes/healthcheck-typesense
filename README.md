@@ -1,4 +1,4 @@
-# Typesense Pulse
+# Health Check Typesense
 
 [![Tests](https://github.com/illuma-law/healthcheck-typesense/actions/workflows/run-tests.yml/badge.svg)](https://github.com/illuma-law/healthcheck-typesense/actions)
 [![Packagist License](https://img.shields.io/badge/Licence-MIT-blue)](http://choosealicense.com/licenses/mit/)
@@ -6,13 +6,15 @@
 
 **Focused Typesense health check for Spatie's Laravel Health package**
 
-This package provides a robust health check for Typesense, monitoring connection health, collection counts, and node availability.
+This package provides a robust health check for Typesense, monitoring connection health, collection counts, and total document counts.
 
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
+  - [Registration](#registration)
   - [Fluent API](#fluent-api)
 - [Testing](#testing)
+- [Changelog](#changelog)
 - [Credits](#credits)
 - [License](#license)
 
@@ -37,11 +39,11 @@ The configuration file allows you to define default client settings and timeout 
 ```php
 return [
     'client_settings' => [
-        'api_key' => env('TYPESENSE_API_KEY'),
-        'nodes' => [
+        'api_key' => env('TYPESENSE_API_KEY', 'xyz'),
+        'nodes'   => [
             [
-                'host' => env('TYPESENSE_HOST', 'localhost'),
-                'port' => env('TYPESENSE_PORT', '8108'),
+                'host'     => env('TYPESENSE_HOST', 'localhost'),
+                'port'     => env('TYPESENSE_PORT', '8108'),
                 'protocol' => env('TYPESENSE_PROTOCOL', 'http'),
             ],
         ],
@@ -52,6 +54,8 @@ return [
 ```
 
 ## Usage
+
+### Registration
 
 Register the check in your `HealthServiceProvider` or wherever you configure Spatie Health:
 
@@ -68,7 +72,7 @@ Health::checks([
 
 ### Fluent API
 
-You can also fluently configure the client settings directly on the check:
+You can also fluently configure the client settings directly on the check, overriding the default configuration:
 
 ```php
 TypesenseCheck::new()
@@ -80,13 +84,27 @@ TypesenseCheck::new()
     ->expectNodes(3);
 ```
 
+### Metadata
+
+The check provides detailed metadata in the result:
+
+- `health`: Raw health status from Typesense.
+- `collection_count`: Number of collections in the cluster.
+- `num_documents_total`: Total number of documents across all collections.
+- `host`: The primary host being checked.
+- `response_time_ms`: Time taken to retrieve health information.
+
 ## Testing
 
-The package includes a comprehensive test suite using Pest.
+The package includes a comprehensive test suite using Pest, with 100% code coverage.
 
 ```bash
 composer test
 ```
+
+## Changelog
+
+Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
 
 ## Credits
 

@@ -1,0 +1,55 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to an undefined method Pest\\PendingCalls\\TestCall\:\:expect\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/ArchTest.php
+
+		-
+			message: '#^Access to an undefined property Mockery\\MockInterface\|Typesense\\Client\:\:\$collections\.$#'
+			identifier: property.notFound
+			count: 2
+			path: tests/TypesenseCheckTest.php
+
+		-
+			message: '#^Access to an undefined property Mockery\\MockInterface\|Typesense\\Client\:\:\$health\.$#'
+			identifier: property.notFound
+			count: 4
+			path: tests/TypesenseCheckTest.php
+
+		-
+			message: '#^Call to an undefined method Mockery\\ExpectationInterface\|Mockery\\HigherOrderMessage\:\:andReturn\(\)\.$#'
+			identifier: method.notFound
+			count: 3
+			path: tests/TypesenseCheckTest.php
+
+		-
+			message: '#^Call to an undefined method Mockery\\ExpectationInterface\|Mockery\\HigherOrderMessage\:\:andReturnUsing\(\)\.$#'
+			identifier: method.notFound
+			count: 1
+			path: tests/TypesenseCheckTest.php
+
+		-
+			message: '#^Call to an undefined method Mockery\\ExpectationInterface\|Mockery\\HigherOrderMessage\:\:andThrow\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/TypesenseCheckTest.php
+
+		-
+			message: '#^Call to an undefined method Mockery\\MockInterface\|Typesense\\Collections\:\:shouldReceive\(\)\.$#'
+			identifier: method.notFound
+			count: 2
+			path: tests/TypesenseCheckTest.php
+
+		-
+			message: '#^Call to an undefined method Mockery\\MockInterface\|Typesense\\Health\:\:shouldReceive\(\)\.$#'
+			identifier: method.notFound
+			count: 4
+			path: tests/TypesenseCheckTest.php
+
+		-
+			message: '#^Parameter \#1 \$client of method IllumaLaw\\HealthCheckTypesense\\TypesenseCheck\:\:useClient\(\) expects Typesense\\Client, Mockery\\MockInterface\|Typesense\\Client given\.$#'
+			identifier: argument.type
+			count: 4
+			path: tests/TypesenseCheckTest.php

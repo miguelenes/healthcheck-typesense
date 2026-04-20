@@ -2,33 +2,26 @@
 
 declare(strict_types=1);
 
-use IllumaLaw\HealthCheckTypesense\Tests\TestCase;
 use IllumaLaw\HealthCheckTypesense\TypesenseCheck;
+use Mockery\MockInterface;
 use Spatie\Health\Enums\Status;
 use Typesense\Client;
 use Typesense\Collections;
 use Typesense\Exceptions\TypesenseClientError;
 use Typesense\Health;
 
-uses(TestCase::class);
-
-it('skips when scout driver is not typesense', function () {
-    config()->set('scout.driver', 'algolia');
-
-    $result = TypesenseCheck::new()->run();
-
-    expect($result->status)->toEqual(Status::skipped());
-});
-
 it('can perform a successful check', function () {
+    /** @var Health|MockInterface $health */
     $health = Mockery::mock(Health::class);
     $health->shouldReceive('retrieve')->andReturn(['ok' => true]);
 
+    /** @var Collections|MockInterface $collections */
     $collections = Mockery::mock(Collections::class);
     $collections->shouldReceive('retrieve')->andReturn([
         ['name' => 'test', 'num_documents' => 10],
     ]);
 
+    /** @var Client|MockInterface $client */
     $client = Mockery::mock(Client::class);
     $client->health = $health;
     $client->collections = $collections;
@@ -43,9 +36,11 @@ it('can perform a successful check', function () {
 });
 
 it('fails when typesense throws an exception', function () {
+    /** @var Health|MockInterface $health */
     $health = Mockery::mock(Health::class);
     $health->shouldReceive('retrieve')->andThrow(new Exception('Connection failed'));
 
+    /** @var Client|MockInterface $client */
     $client = Mockery::mock(Client::class);
     $client->health = $health;
 
@@ -58,6 +53,7 @@ it('fails when typesense throws an exception', function () {
 });
 
 it('warns when response time is slow', function () {
+    /** @var Health|MockInterface $health */
     $health = Mockery::mock(Health::class);
     $health->shouldReceive('retrieve')->andReturnUsing(function () {
         usleep(100000);
@@ -65,9 +61,11 @@ it('warns when response time is slow', function () {
         return ['ok' => true];
     });
 
+    /** @var Collections|MockInterface $collections */
     $collections = Mockery::mock(Collections::class);
     $collections->shouldReceive('retrieve')->andReturn([]);
 
+    /** @var Client|MockInterface $client */
     $client = Mockery::mock(Client::class);
     $client->health = $health;
     $client->collections = $collections;
@@ -82,9 +80,11 @@ it('warns when response time is slow', function () {
 });
 
 it('fails when typesense throws a client error', function () {
+    /** @var Health|MockInterface $health */
     $health = Mockery::mock(Health::class);
     $health->shouldReceive('retrieve')->andThrow(new TypesenseClientError('Client error'));
 
+    /** @var Client|MockInterface $client */
     $client = Mockery::mock(Client::class);
     $client->health = $health;
 
@@ -97,7 +97,6 @@ it('fails when typesense throws a client error', function () {
 });
 
 it('can be configured with fluent methods', function () {
-    config()->set('scout.driver', 'typesense');
     config()->set('healthcheck-typesense.client_settings', [
         'nodes' => [['host' => 'localhost', 'port' => '8108', 'protocol' => 'http']],
         'api_key' => 'xyz',
@@ -110,7 +109,7 @@ it('can be configured with fluent methods', function () {
 
     expect($check)->toBeInstanceOf(TypesenseCheck::class);
 
-    // This will try to instantiate the client and fail reaching it
+    // This should fail because port 8109 is not listening
     $result = $check->run();
     expect($result->status)->toEqual(Status::failed());
 });

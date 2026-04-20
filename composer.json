@@ -66,7 +66,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "IllumaLaw\\HealthCheckTypesense\\TypesensePulseServiceProvider"
+                "IllumaLaw\\HealthCheckTypesense\\HealthCheckTypesenseServiceProvider"
             ]
         }
     },

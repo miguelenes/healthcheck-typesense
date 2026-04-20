@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace IllumaLaw\HealthCheckTypesense\Tests;
 
-use IllumaLaw\HealthCheckTypesense\TypesensePulseServiceProvider;
+use IllumaLaw\HealthCheckTypesense\HealthCheckTypesenseServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Spatie\Health\HealthServiceProvider;
 
@@ -14,7 +14,7 @@ class TestCase extends Orchestra
     {
         return [
             HealthServiceProvider::class,
-            TypesensePulseServiceProvider::class,
+            HealthCheckTypesenseServiceProvider::class,
         ];
     }
 

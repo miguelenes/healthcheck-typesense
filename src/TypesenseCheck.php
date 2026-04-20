@@ -6,16 +6,19 @@ namespace IllumaLaw\HealthCheckTypesense;
 
 use Spatie\Health\Checks\Check;
 use Spatie\Health\Checks\Result;
-use Spatie\Health\Enums\Status;
 use Throwable;
 use Typesense\Client;
 use Typesense\Exceptions\TypesenseClientError;
 
 final class TypesenseCheck extends Check
 {
+    /** @var array<string, mixed>|null */
     private ?array $clientSettings = null;
+
     private ?int $timeoutSeconds = null;
+
     private ?int $expectedNodes = null;
+
     private ?Client $client = null;
 
     public function useClient(Client $client): self
@@ -25,6 +28,7 @@ final class TypesenseCheck extends Check
         return $this;
     }
 
+    /** @param array<string, mixed> $settings */
     public function clientSettings(array $settings): self
     {
         $this->clientSettings = $settings;
@@ -48,29 +52,34 @@ final class TypesenseCheck extends Check
 
     public function run(): Result
     {
-        if (config('scout.driver') !== 'typesense') {
-            return (new Result(Status::skipped(), __('healthcheck-typesense::messages.skipped')))
-                ->meta(['driver' => (string) config('scout.driver', 'database')])
-                ->shortSummary(__('healthcheck-typesense::messages.skipped'));
-        }
+        $configTimeout = config('healthcheck-typesense.timeout_seconds');
+        $timeoutSeconds = $this->timeoutSeconds ?? (is_int($configTimeout) ? $configTimeout : 5);
 
-        $timeoutSeconds = $this->timeoutSeconds ?? (int) config('healthcheck-typesense.timeout_seconds', 5);
-        $clientSettings = $this->clientSettings ?? (array) config('healthcheck-typesense.client_settings', []);
-        $expectedNodes = $this->expectedNodes ?? (int) config('healthcheck-typesense.expected_nodes', 1);
+        $configSettings = config('healthcheck-typesense.client_settings');
+        /** @var array<string, mixed> $clientSettings */
+        $clientSettings = $this->clientSettings ?? (is_array($configSettings) ? $configSettings : []);
+
+        $configNodes = config('healthcheck-typesense.expected_nodes');
+        $expectedNodes = $this->expectedNodes ?? (is_int($configNodes) ? $configNodes : 1);
 
         $started = microtime(true);
 
         try {
             $client = $this->client ?? new Client($clientSettings);
             $health = $client->health->retrieve();
+            /** @var array<int, array<string, mixed>> $collections */
             $collections = $client->collections->retrieve();
         } catch (TypesenseClientError $e) {
+            $message = __('healthcheck-typesense::messages.unreachable', ['message' => $e->getMessage()]);
+
             return Result::make()
-                ->failed(__('healthcheck-typesense::messages.unreachable', ['message' => $e->getMessage()]))
+                ->failed(is_string($message) ? $message : 'Typesense request failed')
                 ->shortSummary('Failed');
         } catch (Throwable $e) {
+            $message = __('healthcheck-typesense::messages.unreachable', ['message' => $e->getMessage()]);
+
             return Result::make()
-                ->failed(__('healthcheck-typesense::messages.unreachable', ['message' => $e->getMessage()]))
+                ->failed(is_string($message) ? $message : 'Typesense request failed')
                 ->shortSummary('Failed');
         }
 
@@ -79,18 +88,21 @@ final class TypesenseCheck extends Check
         $numDocs = 0;
 
         foreach ($collections as $row) {
-            $numDocs += (int) ($row['num_documents'] ?? 0);
+            $numDocs += is_int($row['num_documents'] ?? null) ? (int) $row['num_documents'] : 0;
         }
 
-        $host = (string) ($clientSettings['nodes'][0]['host'] ?? '');
+        /** @var array<int, array<string, mixed>> $nodes */
+        $nodes = is_array($clientSettings['nodes'] ?? null) ? $clientSettings['nodes'] : [];
+        $node = $nodes[0] ?? [];
+        $host = is_string($node['host'] ?? null) ? (string) $node['host'] : '';
 
         $result = Result::make()
             ->meta([
-                'health'              => $health,
-                'collection_count'    => $collectionCount,
+                'health' => $health,
+                'collection_count' => $collectionCount,
                 'num_documents_total' => $numDocs,
-                'host'                => $host,
-                'response_time_ms'    => $responseTimeMs,
+                'host' => $host,
+                'response_time_ms' => $responseTimeMs,
             ])
             ->shortSummary("{$responseTimeMs}ms");
 
@@ -98,6 +110,8 @@ final class TypesenseCheck extends Check
             return $result->warning("Typesense responded slowly ({$responseTimeMs}ms)");
         }
 
-        return $result->ok(__('healthcheck-typesense::messages.ok'));
+        $okMessage = __('healthcheck-typesense::messages.ok');
+
+        return $result->ok(is_string($okMessage) ? $okMessage : 'Typesense is healthy');
     }
 }
