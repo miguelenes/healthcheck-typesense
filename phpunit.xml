@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="tests/Pest.php"
+         colors="true">
+    <testsuites>
+        <testsuite name="Unit">
+            <directory suffix="Test.php">tests</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <env name="APP_KEY" value="base64:2fl+nE99xY4S8LyajV9XwH9fUsh7yA9GOnXF7F4N5A="/>
+    </php>
+</phpunit>
